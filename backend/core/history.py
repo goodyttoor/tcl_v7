@@ -1,7 +1,10 @@
 from datetime import datetime, date
 from typing import Optional
 
+from fastapi import APIRouter
 from sqlmodel import Field, SQLModel
+
+router = APIRouter()
 
 
 class History(SQLModel, table=True):

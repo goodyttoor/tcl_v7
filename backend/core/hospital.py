@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
+from fastapi import APIRouter
 from sqlmodel import Field, SQLModel
 
 

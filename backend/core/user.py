@@ -2,7 +2,10 @@ from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional
 
+from fastapi import APIRouter
 from sqlmodel import Field, SQLModel
+
+router = APIRouter()
 
 
 class User(SQLModel, table=True):

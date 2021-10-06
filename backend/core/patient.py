@@ -2,7 +2,10 @@ from datetime import datetime, date, time
 from decimal import Decimal
 from typing import Optional
 
+from fastapi import APIRouter
 from sqlmodel import Field, SQLModel
+
+router = APIRouter()
 
 
 class Patient(SQLModel, table=True):
