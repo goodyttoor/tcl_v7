@@ -1,9 +1,9 @@
 from datetime import datetime, date
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends
-from sqlmodel import Field, SQLModel, Session
+from sqlmodel import Field, SQLModel
 
 from ..db import get_session
 
@@ -172,17 +172,16 @@ class RoleModuleFunctionMap(SQLModel, table=True):
     updated_by: Optional[int] = None
 
 
-# @router.post("/user")
-# async def create_user(user: User, session: Session = Depends(get_session())):
-#     user = User()
-#     session.add(user)
-#     session.commit()
-#     session.refresh(user)
-#     return user
-#
-#
-# @router.get("/user")
-# async def get_users(session: Session = Depends(get_session())):
-#     result = session.execute(select(User))
-#     users = result.scalars().all()
-#     return users
+@router.post("/user")
+async def create_user(user: User, session: AsyncSession = Depends(get_session)):
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user
+
+
+@router.get("/users", response_model=List[User])
+async def get_users(session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(User))
+    users = result.scalars().all()
+    return users

@@ -19,8 +19,8 @@ app = FastAPI()
 # app.include_router(patient.router)
 # app.include_router(procedure.router)
 # app.include_router(reference.router)
-# app.include_router(user.router)
-#
+app.include_router(user.router)
+
 # # Extension modules (history)
 # app.include_router(appointment_opd.router)
 # app.include_router(appointment_or.router)
