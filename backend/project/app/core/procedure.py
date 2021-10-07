@@ -24,7 +24,7 @@ class ProcedureGroup(SQLModel, table=True):
 
 class ProcedureDiseaseMap(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    procedure_id: id
+    procedure_id: int
     disease_id: bool
     require: bool
     age_min: float
@@ -33,8 +33,8 @@ class ProcedureDiseaseMap(SQLModel, table=True):
 
 class HistoryProcedure(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    history_id: id
-    procedure_id: id
+    history_id: int
+    procedure_id: int
     detail: str
     created_at: datetime
     updated_at: datetime

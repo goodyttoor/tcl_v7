@@ -72,7 +72,7 @@ class HospitalPhone(SQLModel, table=True):
 
 class HospitalNode(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    hospital_id: id
+    hospital_id: int
     name: str
     day_of_week: int
     created_at: datetime

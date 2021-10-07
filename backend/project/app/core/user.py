@@ -172,17 +172,17 @@ class RoleModuleFunctionMap(SQLModel, table=True):
     updated_by: Optional[int] = None
 
 
-@router.post("/user")
-async def create_user(user: User, session: Session = Depends(get_session())):
-    user = User()
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
-
-
-@router.get("/user")
-async def get_users(session: Session = Depends(get_session())):
-    result = session.execute(select(User))
-    users = result.scalars().all()
-    return users
+# @router.post("/user")
+# async def create_user(user: User, session: Session = Depends(get_session())):
+#     user = User()
+#     session.add(user)
+#     session.commit()
+#     session.refresh(user)
+#     return user
+#
+#
+# @router.get("/user")
+# async def get_users(session: Session = Depends(get_session())):
+#     result = session.execute(select(User))
+#     users = result.scalars().all()
+#     return users

@@ -58,7 +58,7 @@ class AppointmentOrReschedule(SQLModel, table=True):
     updated_by: Optional[int] = None
 
 
-class AppointmentDoctorMap(SQLModel, table=True):
+class AppointmentOrDoctorMap(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     appointment_or_id: int
     doctor_id: int

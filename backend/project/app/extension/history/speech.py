@@ -1,4 +1,4 @@
-sfrom typing import Optional
+from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
