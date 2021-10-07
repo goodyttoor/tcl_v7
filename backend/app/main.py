@@ -4,6 +4,8 @@ from .core import disease, guardian, history, hospital, patient, procedure, refe
 from .extension.history import appointment_opd, appointment_or, chief_complaint, conference_ent_plastic, \
     conference_ortho_plastic, conference_summary_treatment, gallery_opd, gallery_or, home_visit, problem, refer, \
     speech, travel_reimburse, treatment, vpi
+from .db import init_db
+
 # from .extension.aorsormor import follow_appointment, follow_operation, search
 # from .extension import audit, dashboard, export
 
@@ -36,10 +38,12 @@ app.include_router(travel_reimburse.router)
 app.include_router(treatment.router)
 app.include_router(vpi.router)
 
+
 # # Extension modules (aorsormor)
 # app.include_router(follow_appointment.router)
 # app.include_router(follow_operation.router)
 # app.include_router(search.router)
+#
 #
 # # Extension modules
 # app.include_router(audit.router)
