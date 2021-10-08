@@ -15,8 +15,9 @@ router = APIRouter()
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    state: str  # Statue: pending, active, inactive
     id_type_id: int
-    id_number: Optional[str] = None
+    id_number: str = None
     email = str
     email_verified_at: Optional[datetime] = None
     password: str
@@ -172,7 +173,7 @@ class RoleModuleFunctionMap(SQLModel, table=True):
     updated_by: Optional[int] = None
 
 
-@router.post("/user")
+@router.post("/user", response_model=User)
 async def create_user(user: User, session: AsyncSession = Depends(get_session)):
     session.add(user)
     await session.commit()
@@ -180,8 +181,115 @@ async def create_user(user: User, session: AsyncSession = Depends(get_session)):
     return user
 
 
-@router.get("/users", response_model=List[User])
+@router.get("/user", response_model=List[User])
 async def get_users(session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(User))
     users = result.scalars().all()
     return users
+
+
+@router.post("/user/check_id/{id_type_id}/{id_number}", response_model=bool)
+async def check_id_available(id_type_id: int, id_number: str, session: AsyncSession = Depends(get_session)):
+    users = await session.execute(select(User).where(User.id_type_id == id_type_id).where(User.id_number == id_number))
+    user = users.scalars().first()
+    if user is not None:
+        return True
+    return False
+
+
+@router.get("/user/pending_num", response_model=int)
+async def get_pending_user_num(session: AsyncSession = Depends(get_session)):
+    users = await session.execute(select(User).where(User.state == "pending"))
+    return len(users.scalars().all())
+
+
+@router.get("/user/{user_id}", response_model=User)
+async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
+    users = await session.execute(select(User).where(User.id == user_id))
+    user = users.scalars().first()
+    return user
+
+
+@router.put("/user/{user_id}", response_model=User)
+async def update_user(user_id: int, session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.delete("/user/{user_id}")
+async def delete_user(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/{user_id}/cert")
+async def upload_cert(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/{user_id}/accept")
+async def accept_policy(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/{user_id}/reset")
+async def reset_password(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/{user_id}/avatar")
+async def upload_avatar(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.delete("/user/{user_id}/avatar")
+async def delete_avatar(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/{user_id}/role")
+async def set_role(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/feedback")
+async def create_user_feedback(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.get("/user/feedback")
+async def get_user_feedbacks(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.get("/user/feedback/{feedback_id}")
+async def get_user_feedback(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.put("/user/feedback/{feedback_id}")
+async def update_user_feedback(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.post("/user/doctor")
+async def create_doctor(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.get("/user/doctor")
+async def get_doctors(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.get("/user/doctor/{doctor_id}")
+async def get_doctor(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.put("/user/doctor/{doctor_id}")
+async def update_doctor(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.delete("/user/doctor/{doctor_id}")
+async def delete_doctor(session: AsyncSession = Depends(get_session)):
+    return None
