@@ -1,7 +1,16 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import APIRouter, Depends
 from sqlmodel import Field, SQLModel
+
+from ...db import get_session
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+router = APIRouter()
 
 
 class HistoryOrthoPlasticConference(SQLModel, table=True):
@@ -39,3 +48,42 @@ class OrthoPlasticConferenceDoctorMap(SQLModel, table=True):
     updated_at: datetime
     created_by: int
     updated_by: Optional[int] = None
+
+
+@router.post("/history_ortho_conference", response_model=HistoryOrthoPlasticConference)
+async def create_history_ortho_conference(history_ortho_conference: HistoryOrthoPlasticConference, session: AsyncSession = Depends(get_session)):
+    session.add(history_ortho_conference)
+    await session.commit()
+    await session.refresh(history_ortho_conference)
+    return history_ortho_conference
+
+
+@router.post("/ortho_conference", response_model=OrthoPlasticConference)
+async def create_ortho_conference(ortho_conference: OrthoPlasticConference, session: AsyncSession = Depends(get_session)):
+    session.add(ortho_conference)
+    await session.commit()
+    await session.refresh(ortho_conference)
+    return ortho_conference
+
+
+@router.get("/history_ortho_conference/{id}", response_model=HistoryOrthoPlasticConference)
+async def get_history_ortho_conference(id: int, session: AsyncSession = Depends(get_session)):
+    history_ortho_conferences = await session.execute(select(HistoryOrthoPlasticConference).where(HistoryOrthoPlasticConference.id == id))
+    history_ortho_conference = history_ortho_conferences.scalars().first()
+    return history_ortho_conference
+
+
+
+@router.put("/history_ortho_conference/{id}", response_model=HistoryOrthoPlasticConference)
+async def update_history_ortho_conference(id: int, session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.delete("/history_ortho_conference/{id}")
+async def delete_history_ortho_conference(session: AsyncSession = Depends(get_session)):
+    return None
+
+
+@router.delete("/history_ortho_conference/{id}")
+async def delete_ortho_conference(session: AsyncSession = Depends(get_session)):
+    return None

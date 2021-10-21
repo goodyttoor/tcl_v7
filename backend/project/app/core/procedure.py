@@ -1,8 +1,13 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from sqlmodel import Field, SQLModel
+
+from ..db import get_session
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -50,3 +55,29 @@ class HistoryProcedureDoctorMap(SQLModel, table=True):
     updated_at: datetime
     created_by: int
     updated_by: Optional[int] = None
+
+#
+#
+# @router.post("/history_procedure", response_model=HistoryProcedure)
+# async def create_history_procedure(history_procedure: HistoryProcedure, session: AsyncSession = Depends(get_session)):
+#     session.add(history_procedure)
+#     await session.commit()
+#     await session.refresh(history_procedure)
+#     return history_procedure
+#
+#
+# @router.get("/history_procedure/{procedure_id}", response_model=HistoryProcedure)
+# async def get_history_procedure(procedure_id: int, session: AsyncSession = Depends(get_session)):
+#     history_procedures = await session.execute(select(HistoryProcedure).where(HistoryProcedure.id == procedure_id))
+#     history_procedure = history_procedures.scalars().first()
+#     return history_procedure
+#
+#
+# @router.put("/history_procedure/{procedure_id}", response_model=HistoryProcedure)
+# async def update_history_procedure(id: int, session: AsyncSession = Depends(get_session)):
+#     return None
+#
+#
+# @router.delete("/history_procedure/{procedure_id}")
+# async def delete_history_procedure(session: AsyncSession = Depends(get_session)):
+#     return None

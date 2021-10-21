@@ -1,8 +1,15 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import APIRouter
 from sqlmodel import Field, SQLModel
 
+from ...db import get_session
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+router = APIRouter()
 
 class HistoryGalleryOr(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
