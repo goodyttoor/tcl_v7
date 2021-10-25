@@ -1,8 +1,8 @@
 """init
 
-Revision ID: f1e917289651
+Revision ID: 12728ef01370
 Revises: 
-Create Date: 2021-10-07 04:54:17.488555
+Create Date: 2021-10-21 06:26:39.493329
 
 """
 import sqlmodel
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f1e917289651'
+revision = '12728ef01370'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -127,6 +127,7 @@ def upgrade():
     op.create_index(op.f('ix_rolemodulefunctionmap_updated_by'), 'rolemodulefunctionmap', ['updated_by'], unique=False)
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=True),
+    sa.Column('state', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('id_type_id', sa.Integer(), nullable=False),
     sa.Column('id_number', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('email_verified_at', sa.DateTime(), nullable=True),
@@ -158,8 +159,8 @@ def upgrade():
     sa.Column('avatar_path', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('document_path', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('policy_accept', sa.Boolean(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.Column('created_by', sa.Integer(), nullable=False),
     sa.Column('updated_by', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
@@ -198,6 +199,7 @@ def upgrade():
     op.create_index(op.f('ix_user_policy_accept'), 'user', ['policy_accept'], unique=False)
     op.create_index(op.f('ix_user_potential'), 'user', ['potential'], unique=False)
     op.create_index(op.f('ix_user_remember_token'), 'user', ['remember_token'], unique=False)
+    op.create_index(op.f('ix_user_state'), 'user', ['state'], unique=False)
     op.create_index(op.f('ix_user_updated_at'), 'user', ['updated_at'], unique=False)
     op.create_index(op.f('ix_user_updated_by'), 'user', ['updated_by'], unique=False)
     op.create_table('userfeedback',
@@ -348,6 +350,7 @@ def downgrade():
     op.drop_table('userfeedback')
     op.drop_index(op.f('ix_user_updated_by'), table_name='user')
     op.drop_index(op.f('ix_user_updated_at'), table_name='user')
+    op.drop_index(op.f('ix_user_state'), table_name='user')
     op.drop_index(op.f('ix_user_remember_token'), table_name='user')
     op.drop_index(op.f('ix_user_potential'), table_name='user')
     op.drop_index(op.f('ix_user_policy_accept'), table_name='user')
