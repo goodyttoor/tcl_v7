@@ -1,5 +1,6 @@
-import copy
-from datetime import datetime, date
+import os
+import pathlib
+from datetime import datetime, date, time
 from decimal import Decimal
 from typing import Optional, List
 
@@ -9,10 +10,13 @@ from sqlmodel import Field, SQLModel
 
 from ..db import get_session
 
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
+
+cert_path = '/uploads/user/{user_id}/cert/'
+avatar_path = '/uploads/user/{user_id}/avatar/'
 
 
 class User(SQLModel, table=True):
@@ -177,15 +181,19 @@ class RoleModuleFunctionMap(SQLModel, table=True):
 
 @router.post("/user", response_model=User)
 async def create_user(user: User, session: AsyncSession = Depends(get_session)):
+    # Add user
     session.add(user)
     await session.commit()
     await session.refresh(user)
+
     return user
 
 
 @router.get("/user", response_model=List[User])
 async def get_users(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(User))
+    # Select all users
+    statement = select(User)
+    result = await session.execute(statement)
     users = result.scalars().all()
     return users
 
@@ -252,9 +260,34 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
     return status.HTTP_200_OK
 
 
-@router.post("/user/{user_id}/cert")
-async def upload_cert(file: UploadFile = File(...), session: AsyncSession = Depends(get_session)):
-    return {"filename": file.filename}
+@router.post("/user/{user_id}/document")
+async def upload_document(user_id: int, document: UploadFile = File(...), session: AsyncSession = Depends(get_session)):
+
+    # File name
+    file_dir = os.getcwd() + cert_path.format(user_id=user_id)
+    file_path = file_dir + document.filename
+
+    # Make directory if not exist
+    try:
+        if not os.path.exists(file_dir):
+            pathlib.Path(file_dir).mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(e)
+
+    # Write file
+    with open(file_path, 'wb') as f:
+        f.write(document.file.read())
+        f.close()
+
+    # Update user document path
+    statement = select(User).where(User.id == user_id)
+    users = await session.execute(statement)
+    user_old = users.scalars().one()
+    user_old.document_path = file_path
+
+    await session.commit()
+
+    return {'document_path': file_path}
 
 
 @router.post("/user/{user_id}/accept")
