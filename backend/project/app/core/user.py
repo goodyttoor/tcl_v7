@@ -1,13 +1,15 @@
+import copy
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
+from fastapi.encoders import jsonable_encoder
 from sqlmodel import Field, SQLModel
 
 from ..db import get_session
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -190,39 +192,69 @@ async def get_users(session: AsyncSession = Depends(get_session)):
 
 @router.post("/user/check_id/{id_type_id}/{id_number}", response_model=bool)
 async def check_id_available(id_type_id: int, id_number: str, session: AsyncSession = Depends(get_session)):
+    # Check id existence
     users = await session.execute(select(User).where(User.id_type_id == id_type_id).where(User.id_number == id_number))
-    user = users.scalars().first()
-    if user is not None:
+    if users is None:
         return True
     return False
 
 
 @router.get("/user/pending_num", response_model=int)
 async def get_pending_user_num(session: AsyncSession = Depends(get_session)):
+    # Get user with pending status
     users = await session.execute(select(User).where(User.state == "pending"))
     return len(users.scalars().all())
 
 
 @router.get("/user/{user_id}", response_model=User)
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
+    # Get user with id
     users = await session.execute(select(User).where(User.id == user_id))
     user = users.scalars().first()
     return user
 
 
 @router.put("/user/{user_id}", response_model=User)
-async def update_user(user_id: int, session: AsyncSession = Depends(get_session)):
-    return None
+async def update_user(user_id: int, user: User, session: AsyncSession = Depends(get_session)):
+    # Get user with id
+    statement = select(User).where(User.id == user_id)
+    users = await session.execute(statement)
+
+    # Update detail
+    user_old = users.one()
+    model = User(**user_old)
+    update_data = user.dict(exclude_unset=True)
+    updated_user = model.copy(update=update_data)
+    user_old = jsonable_encoder(updated_user)
+
+    # Commit to database
+    await session.commit()
+
+    return user_old
 
 
 @router.delete("/user/{user_id}")
-async def delete_user(session: AsyncSession = Depends(get_session)):
-    return None
+async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)):
+    # Check user existence
+    statement = select(User).where(User.id == user_id)
+    user = await session.execute(statement)
+
+    # Not found error
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    user = user.scalars().one()
+
+    # Delete
+    await session.delete(user)
+    await session.commit()
+
+    return status.HTTP_200_OK
 
 
 @router.post("/user/{user_id}/cert")
-async def upload_cert(session: AsyncSession = Depends(get_session)):
-    return None
+async def upload_cert(file: UploadFile = File(...), session: AsyncSession = Depends(get_session)):
+    return {"filename": file.filename}
 
 
 @router.post("/user/{user_id}/accept")
